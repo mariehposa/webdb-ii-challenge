@@ -9,6 +9,7 @@ server.use(express.json())
 server.use(cors())
 server.use(helmet())
 
+server.get('/', (req, res) => res.send('This works'))
 
 server.get('/api/cars', (req, res) => {
     db.get()
@@ -30,9 +31,27 @@ server.post('/api/cars/', validateBody, (req, res) => {
     .catch(err => res.status(500).json({message: err.message}))
 })
 
+server.put('/api/cars/:id', validateId, validateBody, (req, res) => {
+    db.update(req.params.id, req.newCar)
+    .then(data => {
+        if (data) {
+            res.status(201).json(data)
+        } else res.status(200).json({message: 'Failed to insert new car'})
+    })
+    .catch(err => res.status(500).json({message: err.message}))
+})
 
-
-server.get('/', (req, res) => res.send('This works'))
+server.delete('/api/cars/:id', validateId, (req, res) => {
+   db.remove(req.carGotten.id)
+    .then(car => {
+        res.status(200).json(car + ' car got deleted')
+    })
+    .catch(err => {
+        res.status(500).json({
+            message: "An error occured!"
+        })
+    })
+})
 
 function validateId(req, res, next) {
     const { id } = req.params;
